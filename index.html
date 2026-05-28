@@ -131,16 +131,23 @@
     border-top:4px solid #d9802f;transition:background .5s}
   footer b{color:var(--cream);font-family:'Fraunces'}
   @media(max-width:560px){.progress-card{flex-wrap:wrap}.reset{margin-left:0}h1{font-size:2.6rem}}
-  /* save/load & warning */
-  .save-bar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-  .save-btn{display:flex;align-items:center;gap:6px;background:rgba(245,239,224,.12);border:1px solid rgba(245,239,224,.3);
-    color:var(--cream);font-family:'Spline Sans';font-size:.74rem;font-weight:600;padding:7px 13px;border-radius:99px;
-    cursor:pointer;transition:.2s;white-space:nowrap}
-  .save-btn:hover{background:rgba(245,239,224,.22)}
-  .warn-banner{display:none;background:#92400e;color:#fef3c7;font-size:.8rem;font-weight:600;padding:10px 18px;
-    text-align:center;border-bottom:2px solid #d97706}
-  .warn-banner a{color:#fde68a;text-decoration:underline;cursor:pointer}
-  .warn-banner.show{display:block}
+  /* ---- sync status & id bar ---- */
+  .sync-status{display:flex;align-items:center;gap:7px;font-size:.78rem;color:rgba(245,239,224,.82);padding:7px 0}
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:#94a3b8;flex:0 0 auto;transition:background .4s}
+  .id-bar{display:none;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;
+    background:rgba(245,239,224,.08);border:1px solid rgba(245,239,224,.18);border-radius:12px;padding:12px 14px}
+  .id-bar code{font-family:monospace;font-size:.74rem;background:rgba(0,0,0,.25);padding:3px 8px;border-radius:6px;
+    color:var(--cream);word-break:break-all}
+  .id-bar input{font-family:monospace;font-size:.78rem;padding:6px 10px;border-radius:8px;border:1px solid rgba(245,239,224,.3);
+    background:rgba(0,0,0,.2);color:var(--cream);outline:none;width:260px}
+  .id-bar input::placeholder{opacity:.5}
+  .id-btn{background:rgba(245,239,224,.14);border:1px solid rgba(245,239,224,.28);color:var(--cream);
+    font-family:'Spline Sans';font-size:.74rem;font-weight:600;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s}
+  .id-btn:hover{background:rgba(245,239,224,.24)}
+  .id-label{font-size:.78rem;color:rgba(245,239,224,.7)}
+  /* setup banner override */
+  .warn-banner code{background:rgba(0,0,0,.22);padding:2px 7px;border-radius:5px;font-size:.76rem}
+  .warn-banner a{color:#fde68a;text-decoration:underline}
 </style>
 </head>
 <body>
@@ -167,15 +174,35 @@
         <button class="reset" id="resetBtn">Reset</button>
       </div>
       <div class="save-bar">
+        <div class="sync-status">
+          <span class="sync-dot" id="syncDot"></span>
+          <span id="syncLabel">Loading…</span>
+        </div>
         <button class="save-btn" id="exportBtn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Save progress
+          Save backup
         </button>
         <button class="save-btn" id="importBtn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,5 17,10"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Load progress
+          Load backup
+        </button>
+        <button class="save-btn" id="showIdBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          My device ID
         </button>
         <input type="file" id="importFile" accept=".json" style="display:none">
+      </div>
+
+      <div class="id-bar" id="idBar">
+        <div>
+          <div class="id-label" style="margin-bottom:5px">Your unique ID — use this to sync progress to another device:</div>
+          <code id="userIdDisplay">generating…</code>
+        </div>
+        <button class="id-btn" id="copyIdBtn">Copy ID</button>
+        <div style="width:100%;height:1px;background:rgba(245,239,224,.15);margin:4px 0"></div>
+        <span class="id-label">On another device, paste your ID here:</span>
+        <input id="userIdInput" placeholder="Paste your ID from another device…">
+        <button class="id-btn" id="useIdBtn">Sync to this ID</button>
       </div>
     </div>
   </div>
@@ -359,62 +386,163 @@ const PLACES=[
 {s:"mt",c:"food",n:"Bison Burgers",b:"Lean, flavorful local bison shows up on menus across Big Sky Country.",t:"A Montana road-trip staple."},
 ];
 
-const KEY="pnw_bucketlist_done_v2";
-let done=new Set();
-let storageWorks=false;
+// ================================================================
+//  ONLINE SYNC — fill in your Supabase credentials below
+//  Setup (3 min, free):
+//  1. supabase.com → New project
+//  2. SQL Editor → New query → paste & run:
+//     CREATE TABLE progress (
+//       user_id text PRIMARY KEY,
+//       done    text NOT NULL DEFAULT '[]',
+//       updated_at timestamptz DEFAULT now()
+//     );
+//  3. Settings → API → copy Project URL and anon/public key below
+// ================================================================
+const SUPABASE_URL = 'https://supabase.com/dashboard/project/wnujgcaudcpozebpieuv/settings/api-keys/legacy';      // e.g. https://abcxyz.supabase.co
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndudWpnY2F1ZGNwb3plYnBpZXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk1MDQsImV4cCI6MjA5NTUwNTUwNH0.4UU1nVvxN6SVGHighVxPq0ybAlL6oEzXWs7bU1fHwpU'; // starts with eyJ...
+const DB = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 
-// ---- detect & load from localStorage ----
-try{
-  localStorage.setItem('__test__','1');
-  localStorage.removeItem('__test__');
-  storageWorks=true;
-  const s=localStorage.getItem(KEY);
-  if(s) done=new Set(JSON.parse(s));
-}catch(e){
-  document.getElementById('warnBanner').classList.add('show');
+const KEY     = 'pnw_bucketlist_done_v2';
+const UID_KEY = 'pnw_user_id';
+let userId, done = new Set(), saveTimer;
+
+// ---- generate / retrieve stable user ID ----
+try {
+  userId = localStorage.getItem(UID_KEY);
+  if (!userId) {
+    userId = crypto.randomUUID ? crypto.randomUUID() : 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+    localStorage.setItem(UID_KEY, userId);
+  }
+} catch(e) { userId = 'u_' + Date.now().toString(36); }
+
+// ---- load localStorage immediately (instant render) ----
+try { const s = localStorage.getItem(KEY); if (s) done = new Set(JSON.parse(s)); } catch(e){}
+
+// ---- sync status UI ----
+function setSyncStatus(state) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  if (!dot || !lbl) return;
+  const m = { synced:['#22c55e','Synced online ✓'], saving:['#f59e0b','Saving…'],
+               local:['#94a3b8','Saved locally'], error:['#ef4444','Sync error — check config'] };
+  const [color, text] = m[state] || m.local;
+  dot.style.background = color; lbl.textContent = text;
 }
 
-// ---- also try sessionStorage as same-session backup ----
-if(!storageWorks){
-  try{
-    const s=sessionStorage.getItem(KEY);
-    if(s) done=new Set(JSON.parse(s));
-  }catch(e){}
+// ---- Supabase REST helpers ----
+async function dbLoad() {
+  if (!DB) return null;
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/progress?user_id=eq.${encodeURIComponent(userId)}&select=done`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (!r.ok) return null;
+    const d = await r.json();
+    return d[0] ? JSON.parse(d[0].done) : [];
+  } catch(e) { return null; }
 }
 
-function save(){
-  const val=JSON.stringify([...done]);
-  try{localStorage.setItem(KEY,val);}catch(e){}
-  try{sessionStorage.setItem(KEY,val);}catch(e){}
+async function dbSave() {
+  if (!DB) return;
+  setSyncStatus('saving');
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/progress`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' },
+      body: JSON.stringify({ user_id: userId, done: JSON.stringify([...done]), updated_at: new Date().toISOString() })
+    });
+    setSyncStatus(r.ok ? 'synced' : 'error');
+  } catch(e) { setSyncStatus('error'); }
 }
 
-// ---- EXPORT: download progress as JSON file ----
-document.getElementById('exportBtn').addEventListener('click',()=>{
-  const payload=JSON.stringify({version:2,done:[...done],date:new Date().toISOString()},null,2);
-  const a=document.createElement('a');
-  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(payload);
-  a.download='pnw_progress.json';
-  a.click();
+// ---- save: local immediately + cloud debounced ----
+function saveLocal() {
+  try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch(e){}
+  try { sessionStorage.setItem(KEY, JSON.stringify([...done])); } catch(e){}
+}
+function save() {
+  saveLocal();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(dbSave, 900);
+}
+
+// ---- setup banner ----
+const warnEl = document.getElementById('warnBanner');
+if (!DB) {
+  warnEl.innerHTML = `☁️ <b>3 steps to enable online sync across all your devices:</b>
+    &nbsp; <b>1.</b> Create a free account at <a href="https://supabase.com" target="_blank">supabase.com</a>
+    &nbsp; <b>2.</b> SQL Editor → run: <code>CREATE TABLE progress (user_id text PRIMARY KEY, done text NOT NULL DEFAULT '[]', updated_at timestamptz DEFAULT now());</code>
+    &nbsp; <b>3.</b> Paste your Project URL + anon key into this HTML file (search for YOUR_SUPABASE_URL).
+    &nbsp; Until then, use <b>Save backup</b> to download your progress manually.`;
+  warnEl.classList.add('show');
+}
+
+// ---- init: render local immediately, then merge cloud ----
+async function initProgress() {
+  if (DB) {
+    setSyncStatus('saving');
+    const cloud = await dbLoad();
+    if (cloud && cloud.length > 0) {
+      cloud.forEach(id => done.add(id));
+      saveLocal();
+    }
+    setSyncStatus(cloud !== null ? 'synced' : 'error');
+  } else {
+    setSyncStatus('local');
+  }
+  render(); updateProgress(); buildStateTabs();
+  const el = document.getElementById('userIdDisplay');
+  if (el) el.textContent = userId;
+}
+
+// ---- export backup ----
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const payload = JSON.stringify({ version:2, userId, done:[...done], date:new Date().toISOString() }, null, 2);
+  const a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(payload);
+  a.download = 'pnw_progress.json'; a.click();
 });
 
-// ---- IMPORT: load progress from JSON file ----
-document.getElementById('importBtn').addEventListener('click',()=>{
-  document.getElementById('importFile').click();
-});
-document.getElementById('importFile').addEventListener('change',e=>{
-  const file=e.target.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try{
-      const data=JSON.parse(ev.target.result);
-      const ids=data.done||data; // support both formats
-      done=new Set(Array.isArray(ids)?ids:JSON.parse(ids));
+// ---- import backup ----
+document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      const ids = data.done || data;
+      done = new Set(Array.isArray(ids) ? ids : JSON.parse(ids));
       save(); render(); updateProgress(); buildStateTabs();
       alert(`Loaded! ${done.size} spots restored.`);
-    }catch(err){alert('Could not read that file. Make sure it\'s a pnw_progress.json file.');}
+    } catch(err) { alert('Could not read that file — make sure it\'s a pnw_progress.json.'); }
   };
   reader.readAsText(file);
-  e.target.value=''; // allow re-importing same file
+  e.target.value = '';
+});
+
+// ---- device ID panel ----
+document.getElementById('showIdBtn').addEventListener('click', () => {
+  const bar = document.getElementById('idBar');
+  bar.style.display = bar.style.display === 'none' ? 'flex' : 'none';
+});
+document.getElementById('copyIdBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(userId).then(() => {
+    const btn = document.getElementById('copyIdBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy ID', 2200);
+  }).catch(() => alert('Your ID: ' + userId));
+});
+document.getElementById('useIdBtn').addEventListener('click', () => {
+  const val = document.getElementById('userIdInput').value.trim();
+  if (!val) { alert('Paste your ID from another device first.'); return; }
+  if (!confirm(`Switch to ID: ${val.slice(0,18)}…?\nThis will load that device's progress.`)) return;
+  try { localStorage.setItem(UID_KEY, val); } catch(e){}
+  userId = val; done = new Set();
+  document.getElementById('idBar').style.display = 'none';
+  initProgress();
 });
 function pid(p){return p.s+"|"+p.n;}
 
@@ -523,6 +651,7 @@ filterToggle.addEventListener('click',()=>{
 });
 
 applyTheme(STATES[0]);buildStateTabs();render();updateProgress();
+initProgress(); // async: merge cloud data then re-render
 </script>
 </body>
 </html>
