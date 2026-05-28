@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pacific Northwest Bucket List — WA · OR · ID · MT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f5efe0; --paper:#faf6ec; --ink:#1c2520;
+    --line:rgba(28,37,32,.14);
+    --accent:#1b4d3e; --accent2:#2e6b54; --accent-dk:#13322b;
+    --shadow:0 14px 38px -18px rgba(28,37,32,.45);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Spline Sans',sans-serif;background:var(--cream);color:var(--ink);
+    line-height:1.55;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 10% 14%,rgba(46,107,84,.12),transparent 42%),
+      radial-gradient(circle at 90% 6%,rgba(217,128,47,.10),transparent 40%);
+    transition:background .5s ease}
+  .topo{position:fixed;inset:0;z-index:0;opacity:.5;pointer-events:none;
+    background-image:repeating-radial-gradient(circle at 28% 38%,transparent 0 38px,rgba(28,37,32,.035) 38px 39px)}
+  .wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 22px}
+
+  /* ---- compact, collapsing hero ---- */
+  header.hero{position:relative;overflow:hidden;color:var(--cream);padding:26px 0 20px;
+    background:linear-gradient(160deg,var(--accent-dk) 0%,var(--accent) 62%,var(--accent2) 130%);
+    border-bottom:4px solid #d9802f;transition:padding .35s ease,background .5s ease}
+  .hero .mtn{position:absolute;bottom:-2px;left:0;width:100%;height:80px;opacity:.28;transition:opacity .35s}
+  .eyebrow{letter-spacing:.36em;text-transform:uppercase;font-size:.64rem;font-weight:600;
+    color:#f0a35a;margin-bottom:8px;transition:.35s}
+  h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(1.9rem,5vw,3.1rem);
+    line-height:.95;letter-spacing:-.02em;transition:font-size .35s ease}
+  h1 em{font-style:italic;font-weight:500;opacity:.72}
+  /* collapsible block (subtitle + progress) */
+  .hero-extra{max-height:200px;opacity:1;overflow:hidden;
+    transition:max-height .4s ease,opacity .3s ease,margin .35s ease}
+  .sub{font-size:.92rem;max-width:600px;color:rgba(245,239,224,.72);margin-top:8px}
+  .progress-card{margin-top:14px;background:rgba(245,239,224,.08);border:1px solid rgba(245,239,224,.18);
+    border-radius:14px;padding:11px 16px;display:flex;align-items:center;gap:14px;max-width:520px;backdrop-filter:blur(4px)}
+  .ring{--p:0;width:46px;height:46px;border-radius:50%;flex:0 0 auto;
+    background:conic-gradient(#f0a35a calc(var(--p)*1%),rgba(245,239,224,.16) 0);display:grid;place-items:center}
+  .ring span{width:34px;height:34px;border-radius:50%;background:var(--accent-dk);display:grid;place-items:center;
+    font-family:'Fraunces';font-weight:700;font-size:.74rem}
+  .progress-meta{flex:1;font-size:.86rem}.progress-meta b{font-family:'Fraunces';font-size:1.05rem}
+  .bar{height:6px;background:rgba(245,239,224,.16);border-radius:99px;margin-top:6px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#d9802f,#f0a35a);border-radius:99px;transition:width .6s}
+  .reset{margin-left:auto;background:none;border:1px solid rgba(245,239,224,.3);color:rgba(245,239,224,.75);
+    font-size:.7rem;padding:5px 11px;border-radius:99px;cursor:pointer;transition:.2s;white-space:nowrap}
+  .reset:hover{background:rgba(245,239,224,.12)}
+  /* scrolled state: collapse hero gracefully */
+  body.scrolled header.hero{padding:12px 0 10px}
+  body.scrolled .hero-extra{max-height:0;opacity:0;margin-top:0}
+  body.scrolled .eyebrow{margin-bottom:2px;font-size:.58rem;opacity:.85}
+  body.scrolled h1{font-size:clamp(1.3rem,4vw,1.7rem)}
+  body.scrolled .hero .mtn{opacity:.16}
+
+  /* ---- one slim sticky toolbar: state pills + search + chips ---- */
+  .toolbar{position:sticky;top:0;z-index:30;background:rgba(250,246,236,.95);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);padding:9px 0;box-shadow:0 4px 14px -10px rgba(28,37,32,.4)}
+  .toolbar .wrap{display:flex;flex-direction:column;gap:8px}
+  .states{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:1px}
+  .states::-webkit-scrollbar{display:none}
+  .stab{flex:0 0 auto;border:1.5px solid var(--line);background:#fff;cursor:pointer;padding:6px 13px;border-radius:99px;
+    color:var(--accent-dk);font-family:'Spline Sans';font-weight:600;font-size:.82rem;white-space:nowrap;
+    display:flex;align-items:center;gap:6px;transition:.18s}
+  .stab:hover{border-color:var(--accent2);transform:translateY(-1px)}
+  .stab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .stab .nm{font-weight:600}
+  .stab .pr{font-size:.68rem;opacity:.6;font-weight:500}
+  .stab.active .pr{opacity:.85}
+  .controls-row{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+  .search{flex:1;min-width:190px;display:flex;align-items:center;gap:8px;background:#fff;
+    border:1.5px solid var(--line);border-radius:99px;padding:9px 16px;transition:.2s}
+  .search:focus-within{border-color:var(--accent2);box-shadow:0 0 0 4px rgba(46,107,84,.12)}
+  .search input{border:none;outline:none;font-family:'Spline Sans';font-size:.95rem;width:100%;background:none;color:var(--ink)}
+  .search svg{opacity:.5;flex:0 0 auto}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;width:100%;max-height:240px;opacity:1;overflow:hidden;
+    transition:max-height .35s ease,opacity .28s ease,margin .3s ease}
+  /* collapse categories on scroll, unless reopened via the Filters button */
+  body.scrolled .chips{max-height:0;opacity:0;margin:0}
+  body.scrolled.filters-open .chips{max-height:240px;opacity:1}
+  .filter-toggle{display:none;align-items:center;gap:6px;font-family:'Spline Sans';font-size:.8rem;font-weight:600;
+    border:1.5px solid var(--line);background:#fff;color:var(--accent-dk);padding:8px 14px;border-radius:99px;
+    cursor:pointer;white-space:nowrap;transition:.18s}
+  .filter-toggle:hover{border-color:var(--accent2)}
+  .filter-toggle.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .filter-toggle svg{transition:transform .3s ease}
+  .filter-toggle.on svg{transform:rotate(180deg)}
+  body.scrolled .filter-toggle{display:inline-flex}
+  .chip{font-size:.8rem;font-weight:600;border:1.5px solid var(--line);background:#fff;color:var(--accent-dk);
+    padding:8px 14px;border-radius:99px;cursor:pointer;transition:.18s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .chip:hover{border-color:var(--accent2);transform:translateY(-1px)}
+  .chip.active{background:var(--accent);color:var(--cream);border-color:var(--accent)}
+  .chip .ct{opacity:.6;font-size:.7rem}
+
+  main{padding:22px 0 70px}
+  .count-line{font-size:.85rem;color:var(--accent2);margin:4px 2px 18px;font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px}
+  .card{position:relative;background:var(--paper);border:1.5px solid var(--line);border-radius:16px;
+    padding:20px 20px 18px;box-shadow:var(--shadow);transition:transform .22s,box-shadow .22s;
+    opacity:0;transform:translateY(14px);animation:rise .5s forwards;border-top:4px solid var(--cardaccent,#1b4d3e)}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .card:hover{transform:translateY(-4px);box-shadow:0 22px 46px -20px rgba(28,37,32,.5)}
+  .pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px;padding-right:34px}
+  .pill{font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 9px;border-radius:99px}
+  .pill.state{color:#fff;background:var(--cardaccent,#1b4d3e)}
+  .pill.cat{color:var(--accent-dk);background:rgba(28,37,32,.07)}
+  .card h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.3rem;line-height:1.13;margin-bottom:8px}
+  .card p{font-size:.9rem;color:#3a4843;margin-bottom:10px}
+  .card .tip{font-size:.8rem;color:var(--accent2);border-left:2px solid currentColor;padding-left:10px;margin-bottom:13px;opacity:.92}
+  .card .tip b{color:var(--accent-dk)}
+  .card a.photos{font-weight:600;font-size:.82rem;color:var(--accent);text-decoration:none;
+    display:inline-flex;align-items:center;gap:5px;border-bottom:1.5px solid #d9802f;padding-bottom:1px;transition:.18s}
+  .card a.photos:hover{gap:9px}
+  .check{position:absolute;top:18px;right:18px;width:30px;height:30px;border-radius:50%;
+    border:2px solid var(--accent2);background:#fff;cursor:pointer;display:grid;place-items:center;transition:.2s}
+  .check:hover{transform:scale(1.08)}
+  .check svg{width:16px;height:16px;stroke:#fff;stroke-width:3.4;fill:none;stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .3s}
+  .card.done{background:#eef2ec}
+  .card.done .check{background:var(--accent2);border-color:var(--accent2)}
+  .card.done .check svg{stroke-dashoffset:0}
+  .card.done h3{color:var(--accent2)}
+  .card.done::after{content:"EXPLORED";position:absolute;bottom:16px;right:18px;font-family:'Fraunces';
+    font-style:italic;font-size:.72rem;color:var(--accent2);opacity:.65}
+  .empty{text-align:center;padding:60px 20px;color:var(--accent2);font-family:'Fraunces';font-style:italic;font-size:1.2rem}
+  footer{background:var(--accent-dk);color:rgba(245,239,224,.7);padding:28px 0;text-align:center;font-size:.82rem;
+    border-top:4px solid #d9802f;transition:background .5s}
+  footer b{color:var(--cream);font-family:'Fraunces'}
+  @media(max-width:560px){.progress-card{flex-wrap:wrap}.reset{margin-left:0}h1{font-size:2.6rem}}
+  /* save/load & warning */
+  .save-bar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .save-btn{display:flex;align-items:center;gap:6px;background:rgba(245,239,224,.12);border:1px solid rgba(245,239,224,.3);
+    color:var(--cream);font-family:'Spline Sans';font-size:.74rem;font-weight:600;padding:7px 13px;border-radius:99px;
+    cursor:pointer;transition:.2s;white-space:nowrap}
+  .save-btn:hover{background:rgba(245,239,224,.22)}
+  .warn-banner{display:none;background:#92400e;color:#fef3c7;font-size:.8rem;font-weight:600;padding:10px 18px;
+    text-align:center;border-bottom:2px solid #d97706}
+  .warn-banner a{color:#fde68a;text-decoration:underline;cursor:pointer}
+  .warn-banner.show{display:block}
+</style>
+</head>
+<body>
+<div class="topo"></div>
+
+<div class="warn-banner" id="warnBanner">
+  Progress won't save here — open this file in a real browser tab, or <a onclick="document.getElementById('importFile').click()">import a saved progress file</a>.
+  For automatic saving, <span style="opacity:.85">deploy this file to Netlify Drop (free, 1 min).</span>
+</div>
+
+<header class="hero">
+  <svg class="mtn" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,120 L0,70 L180,20 L320,75 L470,15 L520,40 L640,0 L760,55 L900,18 L1050,70 L1200,30 L1200,120 Z" fill="#f5efe0"/></svg>
+  <div class="wrap">
+    <div class="eyebrow">A New Resident's Field Guide</div>
+    <h1 id="heroTitle">Pacific Northwest<br><em>bucket list</em></h1>
+    <div class="hero-extra">
+      <p class="sub" id="heroSub">Everything worth doing across Washington, Oregon, Idaho & Montana. Check spots off as you go — your progress saves right here in your browser.</p>
+      <div class="progress-card">
+        <div class="ring" id="ring"><span id="ringtxt">0%</span></div>
+        <div class="progress-meta">
+          <b id="doneCount">0</b> of <span id="totalCount">0</span> explored
+          <div class="bar"><i id="barFill"></i></div>
+        </div>
+        <button class="reset" id="resetBtn">Reset</button>
+      </div>
+      <div class="save-bar">
+        <button class="save-btn" id="exportBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Save progress
+        </button>
+        <button class="save-btn" id="importBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,5 17,10"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Load progress
+        </button>
+        <input type="file" id="importFile" accept=".json" style="display:none">
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="wrap">
+    <div class="states" id="states"></div>
+    <div class="controls-row">
+      <label class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+        <input id="search" type="text" placeholder="Search all places…" autocomplete="off">
+      </label>
+      <button class="filter-toggle" id="filterToggle" aria-expanded="false">
+        Filters
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6,9 12,15 18,9"/></svg>
+      </button>
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="count-line" id="countLine"></div>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none">No spots match — try another search or filter.</div>
+  </div>
+</main>
+
+<footer><div class="wrap"><b>Pacific Northwest Bucket List</b> &nbsp;·&nbsp; WA · OR · ID · MT &nbsp;·&nbsp; Bookmark this page and explore for years.</div></footer>
+
+<script>
+const STATES=[
+  {id:"all",name:"All States",full:"Pacific Northwest",accent:"#1b4d3e",accent2:"#2e6b54",dk:"#13322b",
+    sub:"Everything worth doing across Washington, Oregon, Idaho & Montana. Check spots off as you go — your progress saves right here in your browser."},
+  {id:"wa",name:"Washington",full:"Washington",accent:"#1b4d3e",accent2:"#2e6b54",dk:"#13322b",
+    sub:"Your home turf — volcanoes, rainforests, islands, and the Seattle scene, mostly within a day trip."},
+  {id:"or",name:"Oregon",full:"Oregon",accent:"#9a3324",accent2:"#c0492f",dk:"#6e2419",
+    sub:"Waterfalls, a sapphire crater lake, a wild coastline, and Portland's quirky charm."},
+  {id:"id",name:"Idaho",full:"Idaho",accent:"#1e7a46",accent2:"#2c9c5b",dk:"#145c34",
+    sub:"Jagged Sawtooths, lunar lava fields, deep canyons, hot springs, and lake towns."},
+  {id:"mt",name:"Montana",full:"Montana",accent:"#6c3a86",accent2:"#854ba0",dk:"#4e2a61",
+    sub:"Big Sky Country — Glacier National Park, huge lakes, ski country, and the scenic drives of legend."},
+];
+const CATS=[
+  {id:"all",label:"All",icon:"🧭"},
+  {id:"city",label:"Cities",icon:"🏙️"},
+  {id:"parks",label:"Parks & Nature",icon:"🏔️"},
+  {id:"coast",label:"Lakes & Coast",icon:"🌊"},
+  {id:"towns",label:"Towns & Trips",icon:"🚗"},
+  {id:"outdoor",label:"Outdoors & Ski",icon:"🥾"},
+  {id:"season",label:"Seasonal",icon:"🌸"},
+  {id:"food",label:"Food & Culture",icon:"🍴"},
+];
+
+const PLACES=[
+// ===== WASHINGTON =====
+{s:"wa",c:"city",n:"Pike Place Market",b:"The beating heart of Seattle — fish-throwers, the original Starbucks, the gum wall, and endless local stalls.",t:"Go early to beat crowds; grab a Piroshky pastry."},
+{s:"wa",c:"city",n:"Space Needle",b:"The 605-ft icon of the 1962 World's Fair, with a rotating glass floor and 360° views.",t:"Pair with Chihuly next door on one ticket."},
+{s:"wa",c:"city",n:"Chihuly Garden and Glass",b:"Dale Chihuly's surreal blown-glass sculptures glowing in a gallery and garden beneath the Needle.",t:"Stunning at dusk when lit."},
+{s:"wa",c:"city",n:"Museum of Pop Culture",b:"Frank Gehry's wild metallic building packed with music and sci-fi exhibits — Hendrix to Nirvana.",t:"Don't miss the Sky Church sound system."},
+{s:"wa",c:"city",n:"Kerry Park Viewpoint",b:"The postcard shot: skyline, Space Needle, and Mt. Rainier framed together on Queen Anne.",t:"Best at sunset or blue hour."},
+{s:"wa",c:"city",n:"Bainbridge Island Ferry",b:"A cheap, gorgeous 35-min sail across Elliott Bay to a charming island town.",t:"Walk on (no car) for the cheapest ride."},
+{s:"wa",c:"city",n:"Fremont Troll",b:"An 18-ft concrete troll clutching a real VW Beetle under the Aurora Bridge.",t:"Explore funky Fremont afterward."},
+{s:"wa",c:"city",n:"Ballard Locks",b:"Watch boats rise between fresh and salt water, and salmon climb the fish ladder in summer.",t:"Salmon run peaks July–September."},
+{s:"wa",c:"city",n:"Discovery Park",b:"Seattle's largest park — 500+ acres of bluff, beach, and forest with a lighthouse.",t:"Hike the Loop Trail to the lighthouse."},
+{s:"wa",c:"city",n:"Pioneer Square Underground Tour",b:"Walk beneath the streets through the buried original storefronts of old Seattle.",t:"Book ahead on weekends."},
+{s:"wa",c:"city",n:"Mariners or Seahawks Game",b:"Baseball under T-Mobile Park's retractable roof, or the famously loud '12s' at Lumen Field.",t:"Lumen is one of the NFL's loudest stadiums."},
+{s:"wa",c:"parks",n:"Mount Rainier — Paradise",b:"The park's iconic hub: summer wildflower meadows, winter snowshoeing, under the glaciated peak.",t:"Summer needs a timed-entry reservation."},
+{s:"wa",c:"parks",n:"Mount Rainier — Sunrise",b:"The highest point reachable by car in the park, with 360° volcano views and alpine trails.",t:"Road open summer only; arrive early."},
+{s:"wa",c:"parks",n:"Olympic NP — Hoh Rain Forest",b:"A moss-draped temperate rainforest with 12+ ft of rain a year — otherworldly green.",t:"One of the quietest places in the US."},
+{s:"wa",c:"parks",n:"Olympic NP — Hurricane Ridge",b:"Drive up to subalpine meadows and ridgeline views across the Olympics.",t:"Snowshoeing in winter."},
+{s:"wa",c:"parks",n:"Rialto & Ruby Beach",b:"Wild Pacific beaches with sea stacks, tide pools, driftwood, and the Hole-in-the-Wall arch.",t:"Time low tide for tide pools."},
+{s:"wa",c:"parks",n:"Sol Duc Hot Springs",b:"Soak in natural mineral pools deep in the Olympic rainforest near a waterfall.",t:"Add the short Sol Duc Falls hike."},
+{s:"wa",c:"parks",n:"Mount St. Helens",b:"Stare into the crater of the volcano that erupted in 1980, from Johnston Ridge Observatory.",t:"Access is seasonal (≈May–Oct)."},
+{s:"wa",c:"coast",n:"San Juan Islands",b:"Laid-back islands for orca watching, kayaking, and Friday Harbor.",t:"Orca season peaks May–September."},
+{s:"wa",c:"coast",n:"Whidbey Island & Deception Pass",b:"Dramatic bridge over churning tidal water, plus charming Coupeville.",t:"Walk across the bridge for the view."},
+{s:"wa",c:"coast",n:"Lake Chelan",b:"A 50-mile glacial fjord lake with sunny shores, wineries, and a boat to remote Stehekin.",t:"Sunnier than the wet west side."},
+{s:"wa",c:"coast",n:"Lake Crescent",b:"A jewel-clear, deep-blue Olympic lake with the lovely Marymere Falls hike.",t:"Bring a kayak — the clarity is unreal."},
+{s:"wa",c:"coast",n:"Hood Canal Oyster Beaches",b:"Shuck and slurp some of the world's best oysters straight from the tidelands.",t:"Get a shellfish license and harvest your own."},
+{s:"wa",c:"towns",n:"Leavenworth",b:"A Bavarian-themed alpine village — beer halls, summer river floats, magical at Christmas.",t:"The winter lighting festival is iconic."},
+{s:"wa",c:"towns",n:"Walla Walla Wine Country",b:"Eastern WA's premier wine region with 120+ wineries and a walkable downtown.",t:"Many tasting rooms cluster downtown."},
+{s:"wa",c:"towns",n:"Port Townsend",b:"A preserved Victorian seaport full of art, bookshops, and maritime history.",t:"Wooden boat festival in September."},
+{s:"wa",c:"towns",n:"Snoqualmie Falls & 'Twin Peaks'",b:"A 268-ft waterfall beside the lodge made famous by Twin Peaks.",t:"Grab pie at Twede's Café in North Bend."},
+{s:"wa",c:"towns",n:"Palouse Falls",b:"WA's state waterfall — a 198-ft drop into a stark desert canyon.",t:"Most dramatic in spring snowmelt."},
+{s:"wa",c:"towns",n:"The Palouse Hills",b:"Endless rolling wheat hills like green-and-gold velvet, best from Steptoe Butte.",t:"Steptoe Butte at sunrise is unreal."},
+{s:"wa",c:"towns",n:"Winthrop & Methow Valley",b:"An Old-West-themed town and a sunny valley famous for cross-country skiing.",t:"200+ km of groomed Nordic trails."},
+{s:"wa",c:"outdoor",n:"Crystal Mountain",b:"WA's largest ski resort with unmatched Rainier views and a gondola to a summit restaurant.",t:"Ride the gondola in summer too."},
+{s:"wa",c:"outdoor",n:"Stevens Pass",b:"The closest major ski resort to Seattle — groomers, powder, and parks.",t:"Midweek avoids Hwy 2 traffic."},
+{s:"wa",c:"outdoor",n:"Mt. Baker & Artist Point",b:"Legendary powder and, when the road's open, the jaw-dropping Artist Point viewpoint.",t:"Free snowshoeing to Artist Point on clear days."},
+{s:"wa",c:"outdoor",n:"The Enchantments",b:"Arguably the most spectacular alpine basin in the Lower 48 — spires, larches, turquoise lakes.",t:"Overnight permits need the spring lottery."},
+{s:"wa",c:"outdoor",n:"Rattlesnake Ledge",b:"The quintessential quick Seattle hike to a rocky ledge over Rattlesnake Lake.",t:"Go at sunrise; lot fills by 9 AM."},
+{s:"wa",c:"outdoor",n:"Maple Pass Loop",b:"Often called the best loop hike in the state — ridgeline views and golden autumn larches.",t:"Peak larch color: late Sept–early Oct."},
+{s:"wa",c:"season",n:"Skagit Valley Tulip Festival",b:"Endless rainbow fields of tulips bloom across the valley each spring.",t:"Peak bloom is usually mid-to-late April."},
+{s:"wa",c:"season",n:"Larch Madness",b:"For a few autumn weeks, alpine larches turn brilliant gold across the Cascades.",t:"Maple Pass and Blue Lake are top spots."},
+{s:"wa",c:"season",n:"UW Cherry Blossoms",b:"The UW Quad erupts in pink cherry blossoms each spring — a Seattle rite.",t:"Bloom is brief — usually mid-March."},
+{s:"wa",c:"food",n:"Fresh Pacific Oysters",b:"Hood Canal, Willapa Bay and Samish — WA is one of the world's great oyster regions.",t:"Try Kumamoto and Olympia varieties."},
+{s:"wa",c:"food",n:"Seattle Coffee Culture",b:"Beyond the original Starbucks — dive into indie roasters like Victrola and Vivace.",t:"Order a cortado to fit right in."},
+{s:"wa",c:"food",n:"Dick's Drive-In",b:"A no-frills 1950s burger institution beloved by locals — cheap and open late.",t:"Order a Deluxe and hand-cut fries."},
+
+// ===== OREGON =====
+{s:"or",c:"city",n:"Powell's City of Books",b:"The world's largest independent bookstore — a full Portland city block of new and used books.",t:"Grab the store map; it's easy to get lost."},
+{s:"or",c:"city",n:"Portland Japanese Garden",b:"Widely called the most authentic Japanese garden outside Japan, in Washington Park.",t:"Most serene right at opening."},
+{s:"or",c:"city",n:"International Rose Test Garden",b:"Thousands of roses overlooking the city — Portland is the City of Roses, after all.",t:"Peak bloom is June; free entry."},
+{s:"or",c:"city",n:"Pittock Mansion",b:"A grand hilltop estate with a sweeping view over Portland to Mt. Hood.",t:"Walk up from the Rose Garden for views."},
+{s:"or",c:"city",n:"Portland Food Carts",b:"Whole 'pods' of food carts serve some of the city's best and most creative cheap eats.",t:"The downtown and Hawthorne pods are classics."},
+{s:"or",c:"city",n:"Lan Su Chinese Garden",b:"A walled Ming-dynasty-style garden and teahouse in the middle of Old Town.",t:"Have tea in the upstairs teahouse."},
+{s:"or",c:"parks",n:"Crater Lake National Park",b:"Oregon's only national park — a breathtaking sapphire caldera lake, the deepest in the US.",t:"Rim Drive is snowbound into June."},
+{s:"or",c:"parks",n:"Multnomah Falls",b:"Oregon's tallest, most famous waterfall — a 620-ft cascade with the iconic Benson Footbridge.",t:"Timed-use permit needed in peak season."},
+{s:"or",c:"parks",n:"Columbia River Gorge",b:"A dramatic river canyon lined with waterfalls, viewpoints, and the historic highway.",t:"Crown Point Vista House is a must-stop."},
+{s:"or",c:"parks",n:"Silver Falls State Park",b:"The 'Trail of Ten Falls' — ten waterfalls on one loop, including one you walk behind.",t:"Arrive before 9 AM on weekends."},
+{s:"or",c:"parks",n:"Smith Rock State Park",b:"World-class climbing scenery — rugged spires above the winding Crooked River.",t:"Hike Misery Ridge early; it's shadeless."},
+{s:"or",c:"parks",n:"Painted Hills",b:"Surreal red, gold, and black striped hills — one of the Seven Wonders of Oregon.",t:"Best color in late-afternoon light."},
+{s:"or",c:"coast",n:"Cannon Beach & Haystack Rock",b:"The iconic 235-ft sea stack rising from a wide sandy beach — Oregon's signature coastal view.",t:"Tide pools at the base at low tide."},
+{s:"or",c:"coast",n:"Astoria",b:"A historic riverside town at the mouth of the Columbia, full of Victorian charm and film history.",t:"Climb the Astoria Column for the view."},
+{s:"or",c:"coast",n:"Cape Perpetua & Thor's Well",b:"The highest coastal viewpoint, plus a churning sea 'sinkhole' that seems to drain the ocean.",t:"Time Thor's Well for incoming high tide — stay back."},
+{s:"or",c:"coast",n:"Samuel H. Boardman Corridor",b:"A 12-mile stretch of the wildest, most photogenic cliffs and arches on the southern coast.",t:"Secret Beach and Natural Bridges are highlights."},
+{s:"or",c:"coast",n:"Oregon Coast Aquarium",b:"Newport's excellent aquarium — sea otters, a walk-through shark tunnel, and coast wildlife.",t:"Once home to Keiko of 'Free Willy.'"},
+{s:"or",c:"towns",n:"Bend",b:"Sunny high-desert hub for mountain biking, paddling the Deschutes, and a dense brewery scene.",t:"Do the Bend Ale Trail."},
+{s:"or",c:"towns",n:"Hood River",b:"The windsurfing capital of the Gorge, surrounded by orchards on the 'Fruit Loop' drive.",t:"Visit during fall harvest season."},
+{s:"or",c:"towns",n:"Ashland",b:"Charming southern town home to the renowned Oregon Shakespeare Festival.",t:"Festival runs spring through fall."},
+{s:"or",c:"towns",n:"Willamette Valley Wine Country",b:"One of the world's great Pinot Noir regions, with rolling vineyards near Portland.",t:"Dundee Hills has the densest cluster of wineries."},
+{s:"or",c:"outdoor",n:"Mt. Bachelor",b:"One of the largest ski resorts in the PNW — built on a volcano you can ski all the way around.",t:"The summit lift gives 360° descents."},
+{s:"or",c:"outdoor",n:"Timberline Lodge",b:"Ski beside the iconic 1937 lodge at North America's only lift-served summer ski area.",t:"Summer skiing on the Palmer snowfield."},
+{s:"or",c:"outdoor",n:"Tamolitch Blue Pool",b:"A startlingly blue spring-fed pool along the McKenzie River trail.",t:"The water is freezing — beautiful but icy."},
+{s:"or",c:"outdoor",n:"Tumalo Falls",b:"A 97-ft waterfall near Bend with several more falls further up the trail.",t:"Snow lingers past June; check access."},
+{s:"or",c:"season",n:"Wooden Shoe Tulip Festival",b:"A vast tulip farm bloom near Woodburn each spring, with fields of color and a windmill.",t:"Late March to April; wear boots — it's muddy."},
+{s:"or",c:"season",n:"Portland Rose Festival",b:"A century-old summer celebration with a grand floral parade and waterfront fun.",t:"Held across late May–June."},
+{s:"or",c:"food",n:"Voodoo & Blue Star Doughnuts",b:"Portland's legendary doughnut rivalry — quirky Voodoo vs. gourmet Blue Star.",t:"Blue Star's brioche dough is the local favorite."},
+{s:"or",c:"food",n:"Tillamook Creamery",b:"Tour the famous coastal cheese factory and eat ridiculously good ice cream.",t:"Free self-guided tour; expect an ice cream line."},
+{s:"or",c:"food",n:"Stumptown & PDX Coffee",b:"Portland helped spark third-wave coffee — Stumptown, Heart, and Coava lead the way.",t:"No sales tax makes everything a little cheaper."},
+
+// ===== IDAHO =====
+{s:"id",c:"city",n:"Boise River Greenbelt",b:"A 25-mile tree-lined path along the river through the heart of Boise — bike, walk, or float it.",t:"Float the river on a hot summer day."},
+{s:"id",c:"city",n:"Idaho State Capitol",b:"A gleaming sandstone capitol, the only US statehouse heated by geothermal water.",t:"Free self-guided tours; beautiful rotunda."},
+{s:"id",c:"city",n:"Basque Block",b:"Boise has one of the largest Basque communities outside Spain — culture, museum, and food.",t:"Eat croquetas and try a Basque cider."},
+{s:"id",c:"city",n:"Freak Alley Gallery",b:"The Northwest's largest outdoor mural gallery, filling a downtown Boise alley.",t:"Murals change — go for the ever-shifting art."},
+{s:"id",c:"parks",n:"Craters of the Moon",b:"A surreal sea of black lava fields and cinder cones — NASA trained astronauts here.",t:"Climb Inferno Cone; magical at sunset."},
+{s:"id",c:"parks",n:"Shoshone Falls",b:"The 'Niagara of the West' — a 212-ft waterfall taller than Niagara over a basalt canyon.",t:"Flow is best April–June."},
+{s:"id",c:"parks",n:"Hells Canyon",b:"North America's deepest river gorge, carved by the Snake River — deeper than the Grand Canyon.",t:"Jet-boat tours are the easy way in."},
+{s:"id",c:"parks",n:"City of Rocks",b:"A high-desert wonderland of giant granite spires, loved by climbers and on the old Oregon Trail.",t:"Look for pioneer signatures on Register Rock."},
+{s:"id",c:"parks",n:"Mesa Falls",b:"Two undisturbed waterfalls plunging into a volcanic canyon near the Yellowstone border.",t:"Pair with a Yellowstone trip (90 min away)."},
+{s:"id",c:"coast",n:"Redfish Lake",b:"A stunning alpine lake mirroring the jagged Sawtooth peaks — kayak, swim, and camp.",t:"Take the shuttle boat to far-shore trailheads."},
+{s:"id",c:"coast",n:"Lake Coeur d'Alene",b:"A gorgeous resort lake in the north panhandle, with a scenic drive and lakeside boardwalk.",t:"Drive the Coeur d'Alene Scenic Byway."},
+{s:"id",c:"coast",n:"Payette Lake (McCall)",b:"A clear mountain lake ringed by pines in the resort town of McCall.",t:"Winter Carnival features huge snow sculptures."},
+{s:"id",c:"coast",n:"Bruneau Dunes",b:"The tallest single-structured sand dune in North America, with a stargazing observatory.",t:"Bring a sandboard; great dark-sky programs."},
+{s:"id",c:"towns",n:"Stanley",b:"A tiny, jaw-dropping mountain town at the foot of the Sawtooths — gateway to wilderness.",t:"One of the coldest spots in the Lower 48 — pack layers."},
+{s:"id",c:"towns",n:"Wallace",b:"A perfectly preserved historic silver-mining town; the whole downtown is on the National Register.",t:"Tour a real silver mine."},
+{s:"id",c:"towns",n:"Ketchum & Sun Valley",b:"An upscale mountain town with a storied ski history and year-round outdoor access.",t:"Hemingway is buried in the Ketchum cemetery."},
+{s:"id",c:"outdoor",n:"Sun Valley Resort",b:"America's first destination ski resort — steep, immaculate Bald Mountain with no lift lines.",t:"Beginners stick to gentle Dollar Mountain."},
+{s:"id",c:"outdoor",n:"Schweitzer",b:"Idaho's largest ski resort, with sweeping views over Lake Pend Oreille into three states.",t:"The bluebird-day panorama is unforgettable."},
+{s:"id",c:"outdoor",n:"Sawtooth Wilderness",b:"One of the West's great backpacking ranges — granite peaks, alpine lakes, dark skies.",t:"Permit + bear canister required; best July–Sept."},
+{s:"id",c:"outdoor",n:"Kirkham Hot Springs",b:"Riverside natural hot-spring pools and a warm waterfall along the Payette River.",t:"Easy access right off the highway."},
+{s:"id",c:"outdoor",n:"Goldbug Hot Springs",b:"A rewarding hike to a series of cascading natural hot pools high above a valley.",t:"~2 mi uphill each way — worth every step."},
+{s:"id",c:"food",n:"Basque Cuisine (Boise)",b:"Croquetas, chorizo, and lamb at authentic Basque restaurants — a flavor found almost nowhere else in the US.",t:"Try the Basque chorizo sandwich."},
+{s:"id",c:"food",n:"Finger Steaks",b:"Battered, deep-fried strips of beef — a beloved Idaho original invented in Boise.",t:"A true only-in-Idaho diner staple."},
+
+// ===== MONTANA =====
+{s:"mt",c:"parks",n:"Glacier NP — Going-to-the-Sun Road",b:"Often called America's most scenic road, crossing the Continental Divide past glacial valleys and turquoise lakes.",t:"Vehicle reservations needed mid-June–early Sept."},
+{s:"mt",c:"parks",n:"Grinnell Glacier",b:"A quintessential Glacier hike past turquoise lakes and wildlife to a living glacier.",t:"Carry bear spray; take the boat to shorten it."},
+{s:"mt",c:"parks",n:"Lake McDonald",b:"Glacier's largest lake, famous for rainbow-colored pebbles glowing under crystal water.",t:"Best colors on a calm, sunny morning."},
+{s:"mt",c:"parks",n:"Yellowstone (North Entrance)",b:"Enter the world's first national park through Gardiner, MT — geysers, wildlife, and the Lamar Valley.",t:"Lamar Valley is the 'Serengeti of North America.'"},
+{s:"mt",c:"parks",n:"Beartooth Highway",b:"A jaw-dropping alpine drive switchbacking past snowfields and lakes to a near-11,000-ft pass.",t:"Open ≈late May–mid Oct only; pack layers."},
+{s:"mt",c:"parks",n:"Hyalite Canyon & Palisade Falls",b:"Bozeman's beloved canyon playground, with an easy paved walk to an 80-ft cascade.",t:"Ice climbing here in winter is world-famous."},
+{s:"mt",c:"coast",n:"Flathead Lake",b:"The largest natural freshwater lake west of the Mississippi — clear water, cherry orchards, Wild Horse Island.",t:"Cherry season peaks in July."},
+{s:"mt",c:"coast",n:"Jewel Basin",b:"A hiker-only area packed with 35 alpine lakes and huge views — far quieter than Glacier.",t:"A great crowd-free alternative to Glacier."},
+{s:"mt",c:"coast",n:"Gallatin River",b:"A blue-ribbon trout river and the rafting run from the film 'A River Runs Through It.'",t:"World-class fly fishing all summer."},
+{s:"mt",c:"towns",n:"Bozeman",b:"A booming college town and outdoor hub, gateway to Yellowstone and Big Sky.",t:"Visit the Museum of the Rockies (dinosaurs!)."},
+{s:"mt",c:"towns",n:"Missoula",b:"A laid-back river city with a vibrant arts scene, surrounded by mountains and trout streams.",t:"Hike the 'M' trail above town for views."},
+{s:"mt",c:"towns",n:"Whitefish",b:"A charming ski-and-lake town and the western gateway to Glacier National Park.",t:"Walkable downtown; close to the park."},
+{s:"mt",c:"towns",n:"Butte",b:"A gritty, fascinating historic copper-mining city with grand architecture and deep stories.",t:"The Berkeley Pit is a sobering must-see."},
+{s:"mt",c:"towns",n:"Bannack Ghost Town",b:"Montana's first territorial capital, now a remarkably preserved ghost town and state park.",t:"Over 60 historic buildings to explore."},
+{s:"mt",c:"outdoor",n:"Big Sky Resort",b:"The largest ski resort in the US — Lone Peak's tram tops 11,166 ft, with vast terrain below.",t:"Book lodging months ahead; it sells out."},
+{s:"mt",c:"outdoor",n:"Whitefish Mountain",b:"A laid-back big-mountain resort with Glacier views and famous rime-covered 'snow ghosts.'",t:"The frosted trees on a sunny day are surreal."},
+{s:"mt",c:"outdoor",n:"Bridger Bowl",b:"Bozeman's beloved nonprofit community hill — steep 'Bridger powder' and friendly locals.",t:"The Ridge needs a beacon and partner."},
+{s:"mt",c:"outdoor",n:"Ousel Falls",b:"An accessible, mostly paved waterfall hike near Big Sky — lovely with winter ice.",t:"YakTrax for icy winter trails."},
+{s:"mt",c:"season",n:"Little Bighorn Battlefield",b:"The solemn site of Custer's Last Stand, with memorials to both sides of the 1876 battle.",t:"Ranger talks bring the history to life."},
+{s:"mt",c:"season",n:"National Bison Range",b:"See America's iconic bison roam, plus elk and pronghorn, on a scenic wildlife drive.",t:"Early morning for the best wildlife viewing."},
+{s:"mt",c:"food",n:"Huckleberries",b:"Montana's wild berry obsession — pie, jam, ice cream, even huckleberry shakes everywhere.",t:"Peak fresh huckleberry season is August."},
+{s:"mt",c:"food",n:"Bison Burgers",b:"Lean, flavorful local bison shows up on menus across Big Sky Country.",t:"A Montana road-trip staple."},
+];
+
+const KEY="pnw_bucketlist_done_v2";
+let done=new Set();
+let storageWorks=false;
+
+// ---- detect & load from localStorage ----
+try{
+  localStorage.setItem('__test__','1');
+  localStorage.removeItem('__test__');
+  storageWorks=true;
+  const s=localStorage.getItem(KEY);
+  if(s) done=new Set(JSON.parse(s));
+}catch(e){
+  document.getElementById('warnBanner').classList.add('show');
+}
+
+// ---- also try sessionStorage as same-session backup ----
+if(!storageWorks){
+  try{
+    const s=sessionStorage.getItem(KEY);
+    if(s) done=new Set(JSON.parse(s));
+  }catch(e){}
+}
+
+function save(){
+  const val=JSON.stringify([...done]);
+  try{localStorage.setItem(KEY,val);}catch(e){}
+  try{sessionStorage.setItem(KEY,val);}catch(e){}
+}
+
+// ---- EXPORT: download progress as JSON file ----
+document.getElementById('exportBtn').addEventListener('click',()=>{
+  const payload=JSON.stringify({version:2,done:[...done],date:new Date().toISOString()},null,2);
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(payload);
+  a.download='pnw_progress.json';
+  a.click();
+});
+
+// ---- IMPORT: load progress from JSON file ----
+document.getElementById('importBtn').addEventListener('click',()=>{
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change',e=>{
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      const ids=data.done||data; // support both formats
+      done=new Set(Array.isArray(ids)?ids:JSON.parse(ids));
+      save(); render(); updateProgress(); buildStateTabs();
+      alert(`Loaded! ${done.size} spots restored.`);
+    }catch(err){alert('Could not read that file. Make sure it\'s a pnw_progress.json file.');}
+  };
+  reader.readAsText(file);
+  e.target.value=''; // allow re-importing same file
+});
+function pid(p){return p.s+"|"+p.n;}
+
+let activeState="all",activeCat="all",query="";
+function stateObj(id){return STATES.find(s=>s.id===id);}
+function stateName(id){return STATES.find(s=>s.id===id).name;}
+
+function applyTheme(st){
+  document.documentElement.style.setProperty('--accent',st.accent);
+  document.documentElement.style.setProperty('--accent2',st.accent2);
+  document.documentElement.style.setProperty('--accent-dk',st.dk);
+  document.getElementById('heroTitle').innerHTML=(st.id==="all"?"Pacific Northwest":st.full)+"<br><em>bucket list</em>";
+  document.getElementById('heroSub').textContent=st.sub;
+}
+
+const statesEl=document.getElementById("states");
+function stateDone(id){const list=PLACES.filter(p=>id==="all"||p.s===id);return list.filter(p=>done.has(pid(p))).length;}
+function buildStateTabs(){
+  statesEl.innerHTML="";
+  STATES.forEach(st=>{
+    const total=PLACES.filter(p=>st.id==="all"||p.s===st.id).length;
+    const b=document.createElement("button");
+    b.className="stab"+(st.id===activeState?" active":"");
+    b.style.setProperty('--tabaccent',st.id==="all"?"#d9802f":st.accent2);
+    b.innerHTML=`<span class="nm">${st.name}</span><span class="pr">${stateDone(st.id)}/${total}</span>`;
+    b.onclick=()=>{activeState=st.id;activeCat="all";applyTheme(st);buildStateTabs();render();window.scrollTo({top:0,behavior:'smooth'});};
+    statesEl.appendChild(b);
+  });
+}
+
+const chipsEl=document.getElementById("chips");
+function catCount(id){const base=PLACES.filter(p=>activeState==="all"||p.s===activeState);return id==="all"?base.length:base.filter(p=>p.c===id).length;}
+function buildChips(){
+  chipsEl.innerHTML="";
+  CATS.forEach(c=>{
+    const cnt=catCount(c.id);
+    if(c.id!=="all"&&cnt===0)return;
+    const b=document.createElement("button");
+    b.className="chip"+(c.id===activeCat?" active":"");
+    b.innerHTML=`<span>${c.icon}</span> ${c.label} <span class="ct">${cnt}</span>`;
+    b.onclick=()=>{activeCat=c.id;render();};
+    chipsEl.appendChild(b);
+  });
+}
+
+const grid=document.getElementById("grid"),emptyEl=document.getElementById("empty"),countLine=document.getElementById("countLine");
+const checkSVG=`<svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg>`;
+function render(){
+  buildChips();
+  const q=query.trim().toLowerCase();
+  const list=PLACES.filter(p=>(activeState==="all"||p.s===activeState)&&(activeCat==="all"||p.c===activeCat)&&
+    (!q||p.n.toLowerCase().includes(q)||p.b.toLowerCase().includes(q)));
+  grid.innerHTML="";emptyEl.style.display=list.length?"none":"block";
+  const sLbl=activeState==="all"?"All States":stateName(activeState);
+  const cLbl=CATS.find(c=>c.id===activeCat).label;
+  countLine.textContent=`${list.length} ${list.length===1?"place":"places"} · ${sLbl}${activeCat==="all"?"":" · "+cLbl}`;
+  list.forEach((p,i)=>{
+    const st=stateObj(p.s),cat=CATS.find(c=>c.id===p.c),isDone=done.has(pid(p));
+    const url="https://www.google.com/search?q="+encodeURIComponent(p.n+" "+st.name+" photos");
+    const card=document.createElement("article");
+    card.className="card"+(isDone?" done":"");
+    card.style.animationDelay=(i*0.03)+"s";
+    card.style.setProperty('--cardaccent',st.accent);
+    card.innerHTML=`<div class="check" role="button" aria-label="Mark explored">${checkSVG}</div>
+      <div class="pills"><span class="pill state">${st.name}</span><span class="pill cat">${cat.icon} ${cat.label}</span></div>
+      <h3>${p.n}</h3><p>${p.b}</p>
+      <div class="tip"><b>Tip:</b> ${p.t}</div>
+      <a class="photos" href="${url}" target="_blank" rel="noopener">View real photos &amp; info →</a>`;
+    card.querySelector(".check").onclick=()=>{
+      if(done.has(pid(p)))done.delete(pid(p));else done.add(pid(p));
+      save();render();updateProgress();buildStateTabs();
+    };
+    grid.appendChild(card);
+  });
+}
+
+function updateProgress(){
+  const total=PLACES.length,d=done.size,pct=Math.round(d/total*100);
+  document.getElementById("doneCount").textContent=d;
+  document.getElementById("totalCount").textContent=total;
+  document.getElementById("ringtxt").textContent=pct+"%";
+  document.getElementById("ring").style.setProperty("--p",pct);
+  document.getElementById("barFill").style.width=pct+"%";
+}
+
+document.getElementById("search").addEventListener("input",e=>{query=e.target.value;render();});
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  if(confirm("Clear all your checked-off spots across every state?")){done.clear();save();render();updateProgress();buildStateTabs();}
+});
+
+// smooth hero collapse on scroll
+let ticking=false;
+const filterToggle=document.getElementById('filterToggle');
+window.addEventListener('scroll',()=>{
+  if(!ticking){requestAnimationFrame(()=>{
+    const sc=window.scrollY>36;
+    document.body.classList.toggle('scrolled',sc);
+    if(!sc){document.body.classList.remove('filters-open');filterToggle.classList.remove('on');filterToggle.setAttribute('aria-expanded','false');}
+    ticking=false;
+  });ticking=true;}
+},{passive:true});
+filterToggle.addEventListener('click',()=>{
+  const open=document.body.classList.toggle('filters-open');
+  filterToggle.classList.toggle('on',open);
+  filterToggle.setAttribute('aria-expanded',open?'true':'false');
+});
+
+applyTheme(STATES[0]);buildStateTabs();render();updateProgress();
+</script>
+</body>
+</html>
